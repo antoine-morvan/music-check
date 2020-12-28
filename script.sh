@@ -24,7 +24,9 @@ MP3_LOG_FILE="${LOG_DIR}/mp3_check_log"
 FLAG_ERROR_LIST="${LOG_DIR}/flac_errors"
 MP3_ERROR_LIST="${LOG_DIR}/mp3_errors"
 
-ncore=$(nproc)
+# above 2, HDD saturates...
+# increase if working with SSDs
+ncore=2
 
 # 1. initialize file list & log files
 mkdir -p "${LOG_DIR}"
