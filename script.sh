@@ -42,6 +42,10 @@ echo "" > "${MP3_LOG_FILE}"
 echo "" > "${MP3_ERROR_LIST}"
 
 # 2. analyse folder
+# single folder version:
+# for file in *; do flac -t -s "$file" ; done
+# for file in *; do mp3val -si "$file" ; done
+
 echo " -- Checking flac ..."
 function flac_check () {
     FLAC_FILE="${1}"
