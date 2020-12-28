@@ -69,6 +69,8 @@ echo " -- Clean FLAC log results ..."
 cat "${FLAC_LOG_FILE}" | grep "^${ZIK_DIR}" | cut -d":" -f1 | sort -u > "${FLAC_ERROR_LIST}"
 
 echo " -- Done."
+echo " -- Logs in '${LOG_DIR}'"
+echo " --"
 exit 0
 
 
