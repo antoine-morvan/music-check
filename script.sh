@@ -7,26 +7,26 @@
 #### Commands to check for consistency
 # use latest FLAC binary compiled from master branch
 # in order to avoid having false positive MD5 issues
-FLAC=flac
-MP3VAL=mp3val
+export FLAC=flac
+export MP3VAL=mp3val
 
 #### Folders & paths
-ZIK_DIR="/mnt/DATA/DATA/Zik/zik/"
-LOG_DIR=~/music_check_logs
+export ZIK_DIR="/mnt/DATA/DATA/Zik/zik/Keziah Jones/"
+export LOG_DIR=~/music_check_logs
 
 # file list, result from find command
-FLAC_LIST_FILE="${LOG_DIR}/flac_list"
-MP3_LIST_FILE="${LOG_DIR}/mp3_list"
+export FLAC_LIST_FILE="${LOG_DIR}/flac_list"
+export MP3_LIST_FILE="${LOG_DIR}/mp3_list"
 # Raw output from analysis
-FLAC_LOG_FILE="${LOG_DIR}/flac_check_log"
-MP3_LOG_FILE="${LOG_DIR}/mp3_check_log"
+export FLAC_LOG_FILE="${LOG_DIR}/flac_check_log"
+export MP3_LOG_FILE="${LOG_DIR}/mp3_check_log"
 # Cleaned list of erroneous files
-FLAG_ERROR_LIST="${LOG_DIR}/flac_errors"
-MP3_ERROR_LIST="${LOG_DIR}/mp3_errors"
+export FLAC_ERROR_LIST="${LOG_DIR}/flac_errors"
+export MP3_ERROR_LIST="${LOG_DIR}/mp3_errors"
 
 # above 2, HDD saturates...
 # increase if working with SSDs
-ncore=2
+ncore=8
 
 # 1. initialize file list & log files
 mkdir -p "${LOG_DIR}"
@@ -37,18 +37,28 @@ find "${ZIK_DIR}" -iname "*.mp3" > "${MP3_LIST_FILE}"
 
 echo " -- Reset log files"
 echo "" > "${FLAC_LOG_FILE}"
-echo "" > "${FLAG_ERROR_LIST}"
+echo "" > "${FLAC_ERROR_LIST}"
 echo "" > "${MP3_LOG_FILE}"
 echo "" > "${MP3_ERROR_LIST}"
 
 # 2. analyse folder
-set +e
 echo " -- Checking flac ..."
-cat "${FLAC_LIST_FILE}"| parallel --bar -j $ncore -I§ --max-args 1 "\
-    ${FLAC} -t -s § 2>> ${FLAC_LOG_FILE}"
+function flac_check () {
+    FLAC_FILE="${1}"
+    ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
+    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s#^#${ESCAPED_FILENAME}:#g" >> "${FLAC_LOG_FILE}"
+}
+export -f flac_check
+
+cat "${FLAC_LIST_FILE}"| parallel --bar -j $ncore --max-args 1 flac_check {}
 echo " -- Checking MP3 ..."
-cat "${MP3_LIST_FILE}" | parallel --bar -j $ncore -I§ --max-args 1 "\
-    ${MP3VAL} -si § | grep -v '^Done!\|^Analyzing file' >> ${MP3_LOG_FILE}"
+function mp3_check () {
+    MP3_FILE="${1}"
+    #echo "$MP3_FILE"
+    "${MP3VAL}" -si "${MP3_FILE}" | grep -v '^Done!\|^Analyzing file' >> "${MP3_LOG_FILE}"
+}
+export -f mp3_check
+cat "${MP3_LIST_FILE}" | parallel --bar -j $ncore --max-args 1 mp3_check {}
 set -e
 
 # 3. clean logs
@@ -56,27 +66,7 @@ echo " -- Clean MP3 log results ..."
 cat "${MP3_LOG_FILE}" | cut -d":" -f2 | rev | cut -d'"' -f2 | rev | grep "^${ZIK_DIR}" | sort -u > "${MP3_ERROR_LIST}"
 
 echo " -- Clean FLAC log results ..."
-set +e
-TMP_FILE=$(mktemp)
-cat "${FLAC_LOG_FILE}" | grep -v "^$" | grep -v "state = " | grep -v "^\*\*" | grep -v "^WARNING" | cut -d":" -f1 | sort -u > "${TMP_FILE}"
-echo "" > "${FLAG_ERROR_LIST}"
-while read -r line; do
-    file="$line"
-    #fullpath=$(find "${ZIK_DIR}" -name "$(printf '%q' "$file")")
-    nb=$(cat "${FLAC_LIST_FILE}" | grep -F "/$file" | wc -l)
-    if [ $nb -gt 1 ]; then
-        echo "Multiple match for '$file'"
-    fi
-    fullpath=$(cat "${FLAC_LIST_FILE}" | grep -F "/$file")
-    if [ "$fullpath" == "" ]; then
-        echo "Could not locate '$file'"
-    fi
-    echo "$fullpath" >> "${FLAG_ERROR_LIST}"
-done < "${TMP_FILE}"
-set -e
-mv "${FLAG_ERROR_LIST}" "${TMP_FILE}"
-cat "${TMP_FILE}" | sort -u > "${FLAG_ERROR_LIST}"
-rm "${TMP_FILE}"
+cat "${FLAC_LOG_FILE}" | grep "^${ZIK_DIR}" | cut -d":" -f1 | sort -u > "${FLAC_ERROR_LIST}"
 
 echo " -- Done."
 exit 0
