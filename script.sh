@@ -11,7 +11,7 @@ export FLAC=flac
 export MP3VAL=mp3val
 
 #### Folders & paths
-export ZIK_DIR="/mnt/DATA/DATA/Zik/zik/Keziah Jones/"
+export ZIK_DIR="/mnt/DATA/DATA/Zik/zik/"
 export LOG_DIR=~/music_check_logs
 
 # file list, result from find command
@@ -26,7 +26,7 @@ export MP3_ERROR_LIST="${LOG_DIR}/mp3_errors"
 
 # above 2, HDD saturates...
 # increase if working with SSDs
-ncore=8
+ncore=2
 
 # 1. initialize file list & log files
 mkdir -p "${LOG_DIR}"
@@ -46,7 +46,7 @@ echo " -- Checking flac ..."
 function flac_check () {
     FLAC_FILE="${1}"
     ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
-    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s#^#${ESCAPED_FILENAME}:#g" >> "${FLAC_LOG_FILE}"
+    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >> "${FLAC_LOG_FILE}"
 }
 export -f flac_check
 
