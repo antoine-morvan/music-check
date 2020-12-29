@@ -46,22 +46,24 @@ echo "" > "${MP3_ERROR_LIST}"
 # for file in *; do flac -t -s "$file" ; done
 # for file in *; do mp3val -si "$file" ; done
 
-echo " -- Checking flac ..."
 function flac_check () {
     FLAC_FILE="${1}"
     ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
     "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >> "${FLAC_LOG_FILE}"
 }
 export -f flac_check
-
-cat "${FLAC_LIST_FILE}"| parallel --bar -j $ncore --max-args 1 flac_check {}
-echo " -- Checking MP3 ..."
 function mp3_check () {
     MP3_FILE="${1}"
     #echo "$MP3_FILE"
     "${MP3VAL}" -si "${MP3_FILE}" | grep -v '^Done!\|^Analyzing file' >> "${MP3_LOG_FILE}"
 }
 export -f mp3_check
+
+
+set +e
+echo " -- Checking flac ..."
+cat "${FLAC_LIST_FILE}"| parallel --bar -j $ncore --max-args 1 flac_check {}
+echo " -- Checking MP3 ..."
 cat "${MP3_LIST_FILE}" | parallel --bar -j $ncore --max-args 1 mp3_check {}
 set -e
 
