@@ -26,59 +26,57 @@ export MP3_ERROR_LIST="${LOG_DIR}/mp3_errors"
 
 # above 2, HDD saturates...
 # increase if working with SSDs
-ncore=2
+ncore=8
 
 # 1. initialize file list & log files
 mkdir -p "${LOG_DIR}"
 echo " -- Listing FLAC files"
-find "${ZIK_DIR}" -iname "*.flac" > "${FLAC_LIST_FILE}"
+find "${ZIK_DIR}" -iname "*.flac" >"${FLAC_LIST_FILE}"
 echo " -- Listing MP3 files"
-find "${ZIK_DIR}" -iname "*.mp3" > "${MP3_LIST_FILE}"
+find "${ZIK_DIR}" -iname "*.mp3" >"${MP3_LIST_FILE}"
 
 echo " -- Reset log files"
-echo "" > "${FLAC_LOG_FILE}"
-echo "" > "${FLAC_ERROR_LIST}"
-echo "" > "${MP3_LOG_FILE}"
-echo "" > "${MP3_ERROR_LIST}"
+echo "" >"${FLAC_LOG_FILE}"
+echo "" >"${FLAC_ERROR_LIST}"
+echo "" >"${MP3_LOG_FILE}"
+echo "" >"${MP3_ERROR_LIST}"
 
 # 2. analyse folder
 # single folder version:
 # for file in *; do flac -t -s "$file" ; done
 # for file in *; do mp3val -si "$file" ; done
 
-function flac_check () {
+function flac_check() {
     FLAC_FILE="${1}"
     ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
-    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >> "${FLAC_LOG_FILE}"
+    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >>"${FLAC_LOG_FILE}"
 }
 export -f flac_check
-function mp3_check () {
+function mp3_check() {
     MP3_FILE="${1}"
     #echo "$MP3_FILE"
-    "${MP3VAL}" -si "${MP3_FILE}" | grep -v '^Done!\|^Analyzing file' >> "${MP3_LOG_FILE}"
+    "${MP3VAL}" -si "${MP3_FILE}" | grep -v '^Done!\|^Analyzing file' >>"${MP3_LOG_FILE}"
 }
 export -f mp3_check
 
-
 set +e
 echo " -- Checking flac ..."
-cat "${FLAC_LIST_FILE}"| parallel --bar -j $ncore --max-args 1 flac_check {}
+cat "${FLAC_LIST_FILE}" | parallel --bar -j $ncore --max-args 1 flac_check {}
 echo " -- Checking MP3 ..."
 cat "${MP3_LIST_FILE}" | parallel --bar -j $ncore --max-args 1 mp3_check {}
 set -e
 
 # 3. clean logs
 echo " -- Clean MP3 log results ..."
-cat "${MP3_LOG_FILE}" | cut -d":" -f2 | rev | cut -d'"' -f2 | rev | grep "^${ZIK_DIR}" | sort -u > "${MP3_ERROR_LIST}"
+cat "${MP3_LOG_FILE}" | cut -d":" -f2 | rev | cut -d'"' -f2 | rev | grep "^${ZIK_DIR}" | sort -u >"${MP3_ERROR_LIST}"
 
 echo " -- Clean FLAC log results ..."
-cat "${FLAC_LOG_FILE}" | grep "^${ZIK_DIR}" | cut -d":" -f1 | sort -u > "${FLAC_ERROR_LIST}"
+cat "${FLAC_LOG_FILE}" | grep "^${ZIK_DIR}" | cut -d":" -f1 | sort -u >"${FLAC_ERROR_LIST}"
 
 echo " -- Done."
 echo " -- Logs in '${LOG_DIR}'"
 echo " --"
 exit 0
-
 
 ########################################
 ##  EXTENSION CHECK & CLEANUP
@@ -131,7 +129,7 @@ for file in *.mid; do timidity "$file" -Ow -o - | ffmpeg -i - -acodec libmp3lame
 for i in *.dsf; do ffmpeg -i "$i" -ar 192000 "${i%.*}.flac"; done
 
 #### split cue to flac
-shnsplit -o flac -t "%n - %t" -f 
+shnsplit -o flac -t "%n - %t" -f
 shnsplit -o flac -t "%n - %t" -f *.cue *.flac
 
 ########################################
