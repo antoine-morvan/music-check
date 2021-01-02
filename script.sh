@@ -13,6 +13,8 @@ export MP3VAL=mp3val
 #### Folders & paths
 export ZIK_DIR="/mnt/DATA/DATA/Zik/zik/"
 export LOG_DIR=~/music_check_logs
+# export ZIK_DIR="/home/koubi/inco/"
+# export LOG_DIR=~/music_check_logs_dls
 
 # file list, result from find command
 export FLAC_LIST_FILE="${LOG_DIR}/flac_list"
@@ -138,11 +140,7 @@ shnsplit -o flac -t "%n - %t" -f *.cue *.flac
 #
 # Make sure all paths/file names are readable from windows & linux
 #
-
-# 1.1. on windows: check file name/path issues
-# both commands should success
-sudo chmod 777 -R .
-sudo du -hs .
-
-# 1.2. on linux: rename files with issues
-#manualy :o
+# to list files:
+find . -name "*[<>:\\|?*]*"
+# to replace forbidden chars with a underscore:
+find . -name "*[<>:\\|?*]*" -exec bash -c 'x="{}"; y="$(sed "s/[<>:\\|?*]\+/_/g" <<< "$x")" && mv "$x" "$y" ' \;
