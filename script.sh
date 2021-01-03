@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+# TODO: integrate https://github.com/sdcweb/redoflacs
+
 ########################################
 ##  MEDIA FILE CHECK
 ########################################
@@ -108,7 +110,7 @@ for EXT in $EXTS; do
 done
 
 find . -type d -empty
-#find . -type d  -empty -delete
+# find . -type d -empty -delete
 
 exit 0
 
