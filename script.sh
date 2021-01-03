@@ -45,8 +45,8 @@ echo -n "" >"${MP3_ERROR_LIST}"
 
 # 2. analyse folder
 # single folder version:
-# for file in *; do flac -wst "$file" ; done
-# for file in *; do mp3val -si "$file" ; done
+# for file in *.flac; do flac -wst "$file" ; done
+# for file in *.mp3; do mp3val -si "$file" ; done
 
 function flac_check() {
     FLAC_FILE="${1}"
