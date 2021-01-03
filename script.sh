@@ -149,3 +149,15 @@ shnsplit -o flac -t "%n - %t" -f *.cue *.flac
 find . -name "*[<>:\\|?*]*"
 # to replace forbidden chars with a underscore:
 find . -name "*[<>:\\|?*]*" -exec bash -c 'x="{}"; y="$(sed "s/[<>:\\|?*]\+/_/g" <<< "$x")" && mv "$x" "$y" ' \;
+
+########################################
+##  Sync 2 Directories
+########################################
+# NOTE: a slash at the source, but none at dest
+# remove "n" option to actually perform
+rsync -n --delete -auv --no-times --no-perms --no-owner --no-group "<source>/DATA/" "<dest>/DATA"
+
+# other options :
+rsync -n --delete -rv --no-times --no-owner --no-group --no-perms "<source>/DATA/" "<dest>/DATA"
+rsync -n --delete -rv --checksum "<source>/DATA/" "<dest>/DATA"
+rsync -n --delete -rv --size-only "<source>/DATA/" "<dest>/DATA"
