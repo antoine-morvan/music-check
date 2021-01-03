@@ -38,20 +38,20 @@ echo " -- Listing MP3 files"
 find "${ZIK_DIR}" -iname "*.mp3" >"${MP3_LIST_FILE}"
 
 echo " -- Reset log files"
-echo "" >"${FLAC_LOG_FILE}"
-echo "" >"${FLAC_ERROR_LIST}"
-echo "" >"${MP3_LOG_FILE}"
-echo "" >"${MP3_ERROR_LIST}"
+echo -n "" >"${FLAC_LOG_FILE}"
+echo -n "" >"${FLAC_ERROR_LIST}"
+echo -n "" >"${MP3_LOG_FILE}"
+echo -n "" >"${MP3_ERROR_LIST}"
 
 # 2. analyse folder
 # single folder version:
-# for file in *; do flac -t -s "$file" ; done
+# for file in *; do flac -wst "$file" ; done
 # for file in *; do mp3val -si "$file" ; done
 
 function flac_check() {
     FLAC_FILE="${1}"
     ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
-    "${FLAC}" -t -s "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >>"${FLAC_LOG_FILE}"
+    "${FLAC}" -wst "${FLAC_FILE}" 2>&1 | sed -r "s<^<${ESCAPED_FILENAME}:<g" >>"${FLAC_LOG_FILE}"
 }
 export -f flac_check
 function mp3_check() {
