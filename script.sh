@@ -130,8 +130,8 @@ for file in *.mid; do timidity "$file" -Ow -o - | ffmpeg -i - -acodec libmp3lame
 #### convert DSF to FLAC /!\ Check rate before running command
 for i in *.dsf; do dsf2flac -i "$i" -r 352800 -o - | flac -8 - -o "${i%.*}.flac"; done
 #### Downsample FLAC
-for flacFile in *.flac; do ffmpeg -i "${flacFile}" -ar 96000 -sample_fmt s32 "${i%.*}_96kHz-24bits.flac"; done
-for flacFile in *.flac; do ffmpeg -i "${flacFile}" -ar 44100 -sample_fmt s16 "${i%.*}_44.1kHz-16bits.flac"; done
+for flacFile in *.flac; do ffmpeg -i "${flacFile}" -ar 96000 -sample_fmt s32 "${flacFile%.*}_96kHz-24bits.flac"; done
+for flacFile in *.flac; do ffmpeg -i "${flacFile}" -ar 44100 -sample_fmt s16 "${flacFile%.*}_44.1kHz-16bits.flac"; done
 
 #### split cue to flac
 shnsplit -o flac -t "%n - %t" -f
