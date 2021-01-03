@@ -97,7 +97,7 @@ echo "All extensions found:"
 echo $EXTS
 echo "--"
 
-BLACKLIST="pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db"
+BLACKLIST="pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db tiff"
 
 for EXT in $EXTS; do
     if [[ $BLACKLIST =~ (^|[[:space:]])$EXT($|[[:space:]]) ]]; then
