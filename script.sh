@@ -97,7 +97,7 @@ echo "All extensions found:"
 echo $EXTS
 echo "--"
 
-BLACKLIST="pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db tiff"
+BLACKLIST="pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db tiff accurip"
 
 for EXT in $EXTS; do
     if [[ $BLACKLIST =~ (^|[[:space:]])$EXT($|[[:space:]]) ]]; then
@@ -179,6 +179,7 @@ function split_cue_flac() {
         echo " --   OK   : '$CUE_FILE'"
         echo " -- split command:   (cd \"${DIR}\" && shnsplit -o flac -t \"%n - %t\" -f '${CUE_BASENAME}' '${FLAC_BASENAME}')"
         (cd "${DIR}" && shnsplit -o flac -t "%n - %t" -f "${CUE_BASENAME}" "${FLAC_BASENAME}")
+        rm "${CUE_FILE}" "${FLAC_FILE}"
     else
         echo " XX NOT OK : '$CUE_FILE'"
     fi
