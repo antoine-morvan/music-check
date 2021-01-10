@@ -161,3 +161,31 @@ rsync -n --delete -auv --no-times --no-perms --no-owner --no-group "<source>/DAT
 rsync -n --delete -rv --no-times --no-owner --no-group --no-perms "<source>/DATA/" "<dest>/DATA"
 rsync -n --delete -rv --checksum "<source>/DATA/" "<dest>/DATA"
 rsync -n --delete -rv --size-only "<source>/DATA/" "<dest>/DATA"
+
+########################################
+##  SHNSPLIT all cue/flac files
+########################################
+
+ncore=2
+function split_cue_flac() {
+    CUE_FILE="${1}"
+    DIR=$(dirname "${CUE_FILE}")
+    CUE_BASENAME=$(basename "${CUE_FILE}")
+    ESCAPED_CUE_FILENAME=$(printf '%q' "${CUE_BASENAME}")
+    FLAC_FILE=$(find "${DIR}" -type f -iname "${ESCAPED_CUE_FILENAME%.*}.flac")
+    FLAC_BASENAME=$(basename "${FLAC_FILE}")
+    ESCAPED_FLAC_FILENAME=$(printf '%q' "${FLAC_BASENAME}")
+    if [ -f "${FLAC_FILE}" ]; then
+        echo " --   OK   : '$CUE_FILE'"
+        echo " -- split command:   (cd \"${DIR}\" && shnsplit -o flac -t \"%n - %t\" -f '${CUE_BASENAME}' '${FLAC_BASENAME}')"
+        (cd "${DIR}" && shnsplit -o flac -t "%n - %t" -f "${CUE_BASENAME}" "${FLAC_BASENAME}")
+    else
+        echo " XX NOT OK : '$CUE_FILE'"
+    fi
+}
+export -f split_cue_flac
+
+TMPFILE=$(mktemp)
+find -type f -iname "*.cue" >"${TMPFILE}"
+cat "${TMPFILE}" | parallel -j $ncore --max-args 1 split_cue_flac {}
+rm "${TMPFILE}"
