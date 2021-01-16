@@ -97,7 +97,7 @@ echo "All extensions found:"
 echo $EXTS
 echo "--"
 
-BLACKLIST="pls qdat rtf tif cdp cdq webp aucdtect ffp
+BLACKLIST="pls qdat rtf tif cdp cdq webp aucdtect ffp md5
     html ico inf doc ds_store es exe 00j 00n 00s 00t
     pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db tiff accurip"
 
