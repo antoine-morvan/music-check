@@ -50,6 +50,9 @@ echo -n "" >"${MP3_ERROR_LIST}"
 # for file in *.flac; do flac -wst "$file" ; done
 # for file in *.mp3; do mp3val -si "$file" ; done
 
+## FIX VBR
+# for file in *.mp3; do mv "${file}" "${file%.mp3}.todo.mp3" && vbrfix "${file%.mp3}.todo.mp3" "${file}" && mp3val -f -nb "${file}" && rm "${file%.mp3}.todo.mp3"; done
+
 function flac_check() {
     FLAC_FILE="${1}"
     ESCAPED_FILENAME=$(printf '%q' "${FLAC_FILE}")
