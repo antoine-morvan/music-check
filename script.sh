@@ -148,9 +148,22 @@ shnsplit -o flac -t "%n - %t" -f *.cue *.flac
 # Make sure all paths/file names are readable from windows & linux
 #
 # to list files:
-find . -name "*[<>:\\|?*]*"
-# to replace forbidden chars with a underscore:
-find . -name "*[<>:\\|?*]*" -exec bash -c 'x="{}"; y="$(sed "s/[<>:\\|?*]\+/_/g" <<< "$x")" && mv "$x" "$y" ' \;
+find . -name "*[<>:\\|?*\"$(printf '\t')]*"
+
+TMPFILE=$(mktemp)
+find . -name "*[<>:\\|?*\"$(printf '\t')]*" > "${TMPFILE}"
+while IFS= read -r line
+do
+  ORIG_FILE_NAME="$line"
+  echo $ORIG_FILE_NAME
+  FIXED_FILE_NAME=$(echo $ORIG_FILE_NAME | sed "s/[<>:\\|?*\t\"\t]\+/_/g")
+  echo $FIXED_FILE_NAME
+  mv "${ORIG_FILE_NAME}" "${FIXED_FILE_NAME}"
+  echo -e "--\n"
+done < "${TMPFILE}"
+rm "${TMPFILE}"
+
+
 
 ########################################
 ##  Sync 2 Directories
