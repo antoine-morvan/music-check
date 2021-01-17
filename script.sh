@@ -101,7 +101,8 @@ echo $EXTS
 echo "--"
 
 BLACKLIST="pls qdat rtf tif cdp cdq webp aucdtect ffp md5
-    html ico inf doc ds_store es exe 00j 00n 00s 00t
+    html ico inf doc ds_store es exe 00j 00n 00s 00t 00a 00l 00p bat swf
+    lnk xml x32 qda x16 dll htm dat dxr cxt en dir dss flv ja m1v mov vcd pad
     pdf txt jpg jpeg png bmp gif log info ini m3u m3u8 nfo sfv db tiff accurip"
 
 for EXT in $EXTS; do
@@ -153,6 +154,10 @@ shnsplit -o flac -t "%n - %t" -f *.cue *.flac
 # to list files:
 find . -name "*[<>:\\|?*\"$(printf '\t')]*"
 
+# to fix: (not double quotes or tabs)
+find . -name "*[<>:\\|?*]*" -exec bash -c 'x="{}"; y="$(sed "s/[<>:\\|?*]\+/_/g" <<< "$x")" && mv "$x" "$y" ' \;
+
+# to fix all:
 TMPFILE=$(mktemp)
 find . -name "*[<>:\\|?*\"$(printf '\t')]*" > "${TMPFILE}"
 while IFS= read -r line
